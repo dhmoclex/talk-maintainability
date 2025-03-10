@@ -1,0 +1,3 @@
+[submodule "beyond.js"]
+	path = beyond.js
+	url = git@github.com:dhmoclex/beyond.js.git
