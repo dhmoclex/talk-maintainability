@@ -1,0 +1,853 @@
+<!doctype html>
+<!--suppress CheckImageSize -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <title>Maintenabilité</title>
+
+  <!--todo: charger les scripts et stylesheets depuis javascript (bascule entre beamer et html) -->
+  <link rel="stylesheet" href="beyond.js/dist/reset.css">
+  <link rel="stylesheet" href="beyond.js/dist/reveal.css">
+  <link rel="stylesheet" href="beyond.js/dist/theme/beamer.css">
+  <link rel="stylesheet" href="beyond.js/plugin/highlight/monokai-light.css">
+
+  <!--todo: à chasser dans beyond 'html.css', uniquement pour la publication statique
+  <style>
+    h1 {
+      margin-block: 0.67em;
+      font-size: 2em;
+    }
+
+    img {
+      width: 600px;
+    }
+  </style>
+  -->
+
+  <!--todo: Encapsuler les images <figure><img><figcaption>...</figcaption></figure> -->
+
+</head>
+<body>
+<div class="reveal">
+  <div class="menubar">
+    <div class="slide-number"></div>
+    <ul class="menu"></ul>
+  </div>
+  <div class="footer">
+    Sébastien Bertrand — Visite guidée de la maintenabilité logicielle — 2025
+  </div>
+  <div class="slides">
+    <section id="introduction" data-state="hide-menubar hide-menu hide-footer">
+      <section id="title">
+        <img class="logo" src="./figures/logo-onepoint.png" alt="Onepoint">
+        <img class="logo" style="height: 60px" src="./figures/logo-breizhcamp.png" alt="BreizhCamp">
+        <h1 style="">Visite guidée de la maintenabilité logicielle</h1>
+        <p><b>Sébastien Bertrand</b></p>
+        <div class="small">
+          <p>BreizhCamp, le 26 juin 2025</p>
+        </div>
+      </section>
+      <section id="example-1" data-auto-animate>
+        <h2>Un petit exemple</h2>
+        <div class="columns">
+          <div class=" column-flex-3">
+            <img
+                src="./figures/example-human-ressource-machine.png"
+                alt="">
+          </div>
+          <div class="column-flex-1">
+            <!--todo: insert preformated text ?-->
+            <pre class="fragment r-stretch" data-id="example-hmr">
+              <code class="language-basic" data-trim
+                    data-line-numbers="1-37|2-7|7-9,17|11-16|18-20,27|21-26|28-30,10|11-26|28-30|31-36|1,37|1-37">
+                a:
+                  INBOX
+                  COPYTO   [A]
+                  INBOX
+                  COPYTO   [B]
+                  INBOX
+                  COPYTO   [C]
+                  SUB      [B]
+                  JUMPNEG  c
+                b:
+                  COPYFROM [C]
+                  COPYTO   [temp]
+                  COPYFROM [B]
+                  COPYTO   [C]
+                  COPYFROM [temp]
+                  COPYTO   [B]
+                c:
+                  COPYFROM [B]
+                  SUB      [A]
+                  JUMPNEG  d
+                  COPYFROM [B]
+                  COPYTO   [temp]
+                  COPYFROM [A]
+                  COPYTO   [B]
+                  COPYFROM [temp]
+                  COPYTO   [A]
+                d:
+                  COPYFROM [B]
+                  SUB      [C]
+                  JUMPNEG  b
+                  COPYFROM [C]
+                  OUTBOX
+                  COPYFROM [B]
+                  OUTBOX
+                  COPYFROM [A]
+                  OUTBOX
+                  JUMP     a
+              </code>
+            </pre>
+          </div>
+        </div>
+      </section>
+      <section id="example-2" data-auto-animate>
+        <h2>Un petit exemple</h2>
+        <div class="columns">
+          <div class="column-flex-1">
+            <!--todo: insert preformated text ?-->
+            <pre class="r-stretch" data-id="example-hmr">
+              <code class="language-basic" data-trim data-line-numbers>
+                a:
+                  INBOX
+                  COPYTO   [A]
+                  INBOX
+                  COPYTO   [B]
+                  INBOX
+                  COPYTO   [C]
+                  SUB      [B]
+                  JUMPNEG  c
+                b:
+                  COPYFROM [C]
+                  COPYTO   [temp]
+                  COPYFROM [B]
+                  COPYTO   [C]
+                  COPYFROM [temp]
+                  COPYTO   [B]
+                c:
+                  COPYFROM [B]
+                  SUB      [A]
+                  JUMPNEG  d
+                  COPYFROM [B]
+                  COPYTO   [temp]
+                  COPYFROM [A]
+                  COPYTO   [B]
+                  COPYFROM [temp]
+                  COPYTO   [A]
+                d:
+                  COPYFROM [B]
+                  SUB      [C]
+                  JUMPNEG  b
+                  COPYFROM [C]
+                  OUTBOX
+                  COPYFROM [B]
+                  OUTBOX
+                  COPYFROM [A]
+                  OUTBOX
+                  JUMP     a
+              </code>
+            </pre>
+          </div>
+          <div class="column-flex-3">
+            <div>
+              <p>Quelques problèmes de maintenabilité :
+              <ul>
+                <li class="fragment">Il n'est pas évident d'identifier ce que fait chaque portion du
+                  code ;
+                </li>
+                <li class="fragment">Les GOTO donnent une impression de code spaghetti ;</li>
+                <li class="fragment">Le flux de l'exécution n'est pas clair.</li>
+              </ul>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="présentation">
+        <h2>Sébastien</h2>
+        <div class="columns">
+          <div class="column-flex-1">
+            <img src="./figures/avatar.png" alt="Sébastien Bertrand">
+          </div>
+          <div class="column-flex-3">
+            <ul>
+              <li>Tech Lead Java chez Onepoint</li>
+              <li>Docteur en génie logiciel empirique</li>
+              <li>Enseignant à l'École Nationale Supérieure de Cognitique (ENSC)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+      <section id="plan">
+        <h2>Plan</h2>
+        <ol>
+          <li class="fragment">La programmation structurée
+            <ul>
+              <li>1966 — Représentation de programme par diagramme de flux
+                <span class="author">(Böhm et Jacopini)</span></li>
+              <li>1968 — « Go To Statement Considered Harmful »
+                <span class="author">(Dijkstra)</span></li>
+            </ul>
+          </li>
+          <li class="fragment">Les premières bases théoriques
+            <ul>
+              <li>1974 — Lois de <span class="author">Lehman</span></li>
+              <li>1976 — Premiers modèles théoriques de maintenabilité</li>
+            </ul>
+          </li>
+          <li class="fragment">L'ère des métriques
+            <ul>
+              <li>1976 — Complexité cyclomatique <span class="author">(McCabe)</span></li>
+              <li>1991 — Métriques d'objet
+                <span class="author">Chidamber et Kemerer</span></li>
+              <li>2017 — Complexité cognitique
+                <span class="author">(Campbell)</span></li>
+            </ul>
+          </li>
+          <li class="fragment">Le passage à la pratique
+            <ul>
+              <li>2000 — Modèles concrets</li>
+              <li>2010 — Modèles empiriques
+                <span class="fragment">, <b>ie. Apprentissage Automatique !</b></span></li>
+            </ul>
+          </li>
+          <li class="fragment">Où en est la recherche ?</li>
+        </ol>
+      </section>
+    </section>
+    <section id="structure" data-name="Structure">
+      <section>
+        <h2>Mais quel est le problème avec GoTo ?</h2>
+        <figure>
+          <img src="./figures/goto.png" alt="">
+          <figcaption><span class="author">XKCD</span> à propos de
+            « Go To Statement Considered Harmful »
+            <span class="author">(Dijkstra)</span></figcaption>
+        </figure>
+        <br/>
+        <ul>
+          <li class="fragment">L’objet principal d’un programme est son processus dynamique de
+            traitement de l’information ;
+          </li>
+          <li class="fragment">Les capacités cognitives des programmeurs sont orientées vers la
+            maîtrise des relations statiques ;
+          </li>
+          <li class="fragment">Cela implique de « réduire l’écart […] entre le
+            programme statique et le processus dynamique » ;
+          </li>
+          <li class="fragment"><b><span class="author">Dijkstra</span></b> plaide pour le
+            bannissement des instructions GOTO au profit de la programmation structurée.
+          </li>
+        </ul>
+      </section>
+      <section>
+        <h2>Programmation structurée</h2>
+        <div class="columns">
+          <div class=" column-flex-3">
+            <figure>
+              <img src="./figures/structured-control.svg" alt="">
+              <figcaption> Diagramme de flux des structures de contrôle de la programmation
+                structurée
+                (<span class="author">Böhm et Jacopini</span> 1966)
+              </figcaption>
+            </figure>
+          </div>
+          <div class=" column-flex-2">
+            <p>Tous les programmes peuvent être écrits à l'aide de ces structures de contrôles,
+              les GOTO sont superflus.</p>
+            <ul>
+              <li class="fragment">Sous-ensemble de la programmation impérative ;</li>
+              <li class="fragment">Blocs d'instructions ;</li>
+              <li class="fragment">Sous-routines « appelable ».</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2>Complexité cyclomatique</h2>
+        <p>Une première métrique introduite par <span class="author">McCabe</span> en 1976.</p>
+        <div class="columns">
+          <div class="column-flex-1">
+            <img height="500" src="./figures/cyclomatic-complexity.png" alt="">
+          </div>
+          <div class="column-flex-1">
+            <ul>
+              <li class="fragment">Basé sur le nombre cyclomatique ;</li>
+              <li class="fragment">Exploite le graphe de contrôle du programme (planaire);</li>
+              <li class="fragment">Compter le nombre de prédicats ;</li>
+              <li class="fragment">Nombre de chemins de test.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2>Entorses à la programmation structurée</h2>
+        <p>Il existe de nombreuses structures très utilisées qui s’apparentent à des GOTO :</p>
+        <ul>
+          <li class="fragment">la sortie anticipée d’une fonction par un return</li>
+          <li class="fragment">les instructions break ou continue permettant de casser une boucle
+            d’exécution
+          </li>
+          <li class="fragment">la gestion d’exceptions par throw, try et catch</li>
+        </ul>
+        <p class="fragment"><b>Les exceptions ne doivent pas être utilisées pour le contrôle de
+          flux.</b></p>
+      </section>
+    </section>
+    <section id="théorie" data-name="Théorie">
+      <section>
+        <h2>Les programmes évolutifs [5 min]</h2>
+        <figure>
+        <div class="r-stack">
+          <img
+              class="fragment fade-out"
+              data-fragment-index="0"
+              src="./figures/type-e-programs-1.png"
+              height="500"
+          />
+          <img
+              class="fragment current-visible"
+              data-fragment-index="0"
+              src="./figures/type-e-programs-2.png"
+              height="500"
+          />
+          <img
+              class="fragment"
+              src="./figures/type-e-programs-3.png"
+              height="500"
+          />
+        </div>
+          <figcaption>Les programmes évolutifs
+            (<span class="author">Lehman</span> 1974)</figcaption>
+        </figure>
+      </section>
+      <section>
+        <h2>Les lois de Lehman</h2>
+        <p>De 1974 à 1996, <span class="author">Lehman</span> énonce les lois de l’évolution des logiciels,
+          qui décrivent les phénomènes généraux qui influencent le développement des logiciels.</p>
+        <ol>
+          <li  class="fragment" data-fragment-index="1">
+            <b>Changement continu</b> :
+            un programme évoluera en permanence tant qu'il est utilisé ;</li>
+          <li  class="fragment" data-fragment-index="1">
+            <b>Complexité croissante (Entropie)</b> :
+            la complexité augmentera en permanence ;</li>
+          <li  class="fragment" data-fragment-index="1">
+            <b>Auto-régulation</b> :
+            l'évolution est régulée par des boucles de rétroaction
+            qui induisent une inertie croissante ;</li>
+          <br />
+          <li  class="fragment" data-fragment-index="2">
+            <b>Conservation de la stabilité organisationnelle</b> :
+            la quantité de travail sera constante ;<br />
+            Corolaire de la loi de <span class="author">Brooks</span> :
+              « Ajouter des personnes à un projet en retard accroît son retard. »</li>
+          <li  class="fragment" data-fragment-index="2">
+            <b>Conservation de la familiarité</b> :
+            l'ajout de valeur sera en moyenne statistiquement constant ;</li>
+          <br />
+          <li  class="fragment" data-fragment-index="3">
+            <b>Croissance continue</b> :
+            le périmètre fonctionnel d'un programme est condamné à s'accroitre ;</li>
+          <li  class="fragment" data-fragment-index="3">
+            <b>Déclin de la qualité</b> :
+            la qualité d'un programme se détériorera en permanence ;</li>
+          <li  class="fragment" data-fragment-index="3">
+            <b>Système rétroactif</b> :
+            les processus d'évolution d'un programme sont complexes,
+            avec des boucles de rétroactions multiples
+            à plusieurs niveaux et à plusieurs agents.</li>
+        </ol>
+        <p class="fragment">Constatées de manière empirique
+          (<span class="author">Herraiz et al.</span> 2013;
+          <span class="author">Sandré</span> 2021).<br />
+          Elles sont généralement valides pour
+          les programmes évolutifs développés dans un contexte industriel.</p>
+      </section>
+      <section>
+        <h2>La complexité du développement logiciel</h2>
+        <p class="fragment"><b>Entropie logicielle</b> (<span class="author">Jacobson</span> 1992)</p>
+        <ul>
+          <li class="fragment">Le désordre à l’intérieur d’un programme ne fera que croître au cours du temps ;</li>
+          <li class="fragment">Elle est associée à la <u>complexité structurelle du code</u> ;</li>
+          <li class="fragment">Elle se rapporte aux première et deuxième lois de
+            <span class="author">Lehman</span> (changement continu et complexité croissante) ;</li>
+        </ul>
+        <p class="fragment"><b>Dette technique</b> (<span class="author">Cunningham</span> 1992)</p>
+        <ul>
+          <li class="fragment">Contraction :
+            On peut commencer à développer même si on ne comprend pas parfaitement le problème ;</li>
+          <li class="fragment">Remboursement : Quand on aura mieux compris le problème,
+            il faudra revenir sur la conception ;</li>
+          <li class="fragment">Poids :
+            Ne pas rembourser la dette va freiner considérablement le développement du programme ;</li>
+          <li class="fragment">Elle se rapporte aux quatrième et cinquième lois de
+            <span class="author">Lehman</span> (stabilité organisationnelle et familiarité) ;</li>
+          <li class="fragment">Selon <span class="author">Fowler</span> (2009),
+            la contraction de la dette peut être <u>volontaire ou involontaire</u>, <u>réfléchie ou irréfléchie</u>.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Définition de la maintenabilité</h2>
+        <p>
+          La maintenabilité d'un logiciel est<br>
+          sa capacité à être modifié<br>
+          par les mainteneurs prévus<br>
+          avec efficacité et efficience.
+        </p>
+        <p class="caption author">ISO 25010 (2023)</p>
+        <div class="fragment small">
+          <p class="list-intro">La norme ISO annote la définition :</p>
+          <ul>
+            <li>Toutes les modifications sont concernées,
+              <u>fonctionnelles et non-fonctionnelles</u> ;
+            </li>
+            <li>La maintenabilité peut être interprétée comme une <u>capacité inhérente</u> du
+              produit à faciliter les activités de maintenance […].
+            </li>
+          </ul>
+        </div>
+      </section>
+      <section>
+        <h2>Modèles théoriques de maintenabilité</h2>
+        <div class="columns">
+          <div class="column-flex-3">
+            <img
+              height="500"
+              src="./figures/model-theoretical.svg"
+              alt="Illustration des modèles théoriques par une décomposition hiérarchique
+                  en sous-caractéristique de la maintenabilité">
+          </div>
+          <div class="column-flex-2">
+            <ul>
+              <li class="fragment"><span class="author">Boehm</span> (1976)</li>
+              <li class="fragment"><span class="author">McCall</span> (1977)</li>
+              <li class="fragment">Travaux de normalisation (1985)</li>
+              <li class="fragment"><span class="author">ISO 9126</span> (1991)</li>
+              <li class="fragment"><span class="author">ISO 25010</span> (2011, 2023)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2>Standard ISO 25010</h2>
+        <p>Décompose la maintenabilité en cinq sous-caractéristiques.</p>
+        <ul>
+          <li class="fragment">Modularité : empêche les modifications apportées à un composant d’affecter d’autres composants ;</li>
+          <li class="fragment">Réutilisabilité : peut être utilisé comme ressource dans plus d’un système ;</li>
+          <li class="fragment">Analysabilité : évaluation de l'impact des modifications, diagnostique des défaillances ;</li>
+          <li class="fragment">Modifiabilité : modifiable efficacement sans introduire de défauts ni dégrader la qualité ;</li>
+          <li class="fragment">Testabilité : permet la conception d'un test pour déterminer si une exigence est satisfaite.</li>
+        </ul>
+      </section>
+    </section>
+    <section id="métriques" data-name="Métriques">
+      <section>
+        <h2>Métriques statiques de code</h2>
+        <div class="columns">
+          <div class="column-flex-3">
+            <pre>
+              <code class="r-stretch language-java" data-trim
+                    data-line-numbers="1-25|1,3-4,6-7,10,12-14,16,19-21,23|21|12,20,21|12,20,21|20|3,4,6,10,19|1|1-25"
+                    data-fragment-index="1">
+                public class Account extends AbstractAccount implements IWithdrawable {
+
+                  private double balance;
+                  private double minForInterest = 30;
+
+                  public double getBalance() {
+                    return balance;
+                  }
+
+                  public double getBalanceWithInterest(double rate) {
+                    // Only add interest if the balance is over the minimum
+                    if (balance > minForInterest) {
+                      double interest = balance * rate;
+                      balance = balance + interest;
+                    }
+                    return balance;
+                  }
+
+                  public double withdraw(double amount) {
+                    if (!isCustomerBanned()) {
+                      if (amount < balance) balance -= amount;
+                    }
+                    return balance;
+                  }
+                }
+              </code>
+            </pre>
+          </div>
+          <div class="column-flex-2">
+            <p>Les métriques sont des compteurs discrets.</p>
+            <ul>
+              <li class="fragment" data-fragment-index="0">Métriques de taille :
+                <ul>
+                  <li>25 lignes de code,</li>
+                  <li class="fragment" data-fragment-index="1">14 lignes logiques,</li>
+                  <li class="fragment" data-fragment-index="2">15 instructions ;</li>
+                </ul>
+              </li>
+              <li class="fragment" data-fragment-index="3">Métriques de contrôle :
+                <ul>
+                  <li>Complexité cyclomatique : 3,</li>
+                  <li class="fragment" data-fragment-index="4">Complexité cognitive : 4 ;</li>
+                </ul>
+              </li>
+              <li class="fragment" data-fragment-index="5">Métriques d'invocations :
+                <ul>
+                  <li>1 invocation ;</li>
+                </ul>
+              </li>
+              <li class="fragment" data-fragment-index="6">Métriques d'objet :
+                <ul>
+                  <li>5 membres de classe,</li>
+                  <li class="fragment" data-fragment-index="7">2 parents.</li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <p class="fragment" data-fragment-index="9"><b>Problèmes de définition</b></p>
+      </section>
+      <section>
+        <h2>Complexité Cognitive</h2>
+        <span class="author">Campbell</span> (2017)
+        <div class="columns">
+          <div class="column-flex-3">
+            <div class="r-stack">
+              <div style="width: 100%" class="fragment fade-out" data-fragment-index="4">
+                <pre>
+                  <code class="language-java" data-trim data-line-numbers>
+                    int sumOfPrimes(int max) {                  // +1
+                      int total = 0;
+                      OUT: for (int i = 2; i <= max; ++i) {     // +1
+                        for (int j = 2; j < i; ++j) {           // +1
+                          if (i % j == 0) {                     // +1
+                            continue OUT;
+                          }
+                        }
+                        total += i;
+                      }
+                      return total;
+                    }                      // Cyclomatic Complexity 4
+                  </code>
+                </pre>
+                <pre>
+                  <code class="language-java" data-trim data-line-numbers>
+                    String getWords(int number) {               // +1
+                      switch (number) {
+                        case 1:                                 // +1
+                          return "one";
+                        case 2:                                 // +1
+                          return "a couple";
+                        case 3:                                 // +1
+                          return "a few";
+                        default:
+                          return "lots";
+                      }
+                    }                      // Cyclomatic Complexity 4
+                  </code>
+                </pre>
+              </div>
+              <div style="width: 100%" class="fragment" data-fragment-index="4">
+                <pre>
+                  <code class="language-java" data-trim data-line-numbers>
+                    int sumOfPrimes(int max) {
+                      int total = 0;
+                      OUT: for (int i = 2; i <= max; ++i) {     // +1
+                        for (int j = 2; j < i; ++j) {           // +2
+                          if (i % j == 0) {                     // +3
+                            continue OUT;                       // +1
+                          }
+                        }
+                        total += i;
+                      }
+                      return total;
+                    }                       // Cognitive Complexity 7
+                  </code>
+                </pre>
+                <pre>
+                  <code class="language-java" data-trim data-line-numbers>
+                    String getWords(int number) {
+                      switch (number) {                         // +1
+                        case 1:
+                          return "one";
+                        case 2:
+                          return "a couple";
+                        case 3:
+                          return "a few";
+                        default:
+                          return "lots";
+                      }
+                    }                       // Cognitive Complexity 1
+                  </code>
+                </pre>
+              </div>
+            </div>
+          </div>
+          <div class="column-flex-2">
+            <ul>
+              <li class="fragment" data-fragment-index="0"><b>Problème de représentativité</b></li>
+              <li class="fragment" data-fragment-index="1">Propose trois règles :
+                <ol>
+                  <li>ignorer les structures simplificatrices,</li>
+                  <li>décompter chaque rupture dans le flux linéaire du code,</li>
+                  <li>pénaliser les structures imbriquées</li>
+                </ol>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2>Limites des métriques</h2>
+        <ul>
+          <li class="fragment">Problèmes de définition : l'implémentation des métriques varie grandement entre les outils ;</li>
+          <li class="fragment">Problèmes de représentativité : les métriques ne sont pas valide au sens de la théorie représentationnelle de la mesure ;</li>
+          <li class="fragment">Confusion par la taille : il existe une correlation très forte entre la taille et les autres métriques ;</li>
+          <li class="fragment">Agrégation : entraîne un effet de lissage,  repose sur l’hypothèse que la maintenabilité d’un système
+            est simplement la somme de la maintenabilité de ses parties.</li>
+        </ul>
+        <p class="fragment"><b>Il n'existe pas de solution alternative aux métriques à ce jour.</b></p>
+      </section>
+    </section>
+    <section id="pratique" data-name="Pratique">
+      <section>
+        <h2>Modèles concrets de maintenabilité</h2>
+        <div class="columns">
+          <div class="column-flex-3">
+            <img
+                height="500"
+                src="./figures/model-practical.svg"
+                alt="Illustration des modèles concret par l'ajout de métriques
+                pour évaluer les feuilles de l'arbre hiérarchique.">
+          </div>
+          <div class="column-flex-2">
+            <ul>
+              <li class="fragment">SIG (2007)</li>
+              <li class="fragment">SQUALE (2009)</li>
+              <li class="fragment">SQALE (2010)</li>
+              <li class="fragment">Columbus (2011)</li>
+              <li class="fragment">QUAMOCO (2012)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+      <section  data-auto-animate>
+        <h2>Un exemple de modèle concret : SQUALE</h2>
+        <img
+            height="500"
+            src="./figures/squale.png"
+            alt="">
+      </section>
+      <section  data-auto-animate>
+        <h2>Un exemple de modèle concret : SQUALE</h2>
+        <div class="columns">
+          <div class="column-flex-1">
+            <img
+                src="./figures/squale.png"
+                alt="">
+          </div>
+          <div class="column-flex-1">
+            <div class="fragment">
+              Exemple de pratique
+              <pre>
+                <code data-trim>
+                  if cc<5 and sloc<30 then
+                    rating = 3
+                  else
+                    rating = (ncloc x 9 / (ncloc + sloc)) / (1 − 10^(−cc/15))
+                  endif
+                </code>
+              </pre>
+            </div>
+            <div class="fragment">
+              <br />
+              Aggregation
+              <img
+                  height="300"
+                  src="./figures/squale-aggregation.png"
+                  alt="">
+            </div>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2>Modèles empiriques</h2>
+        <div class="columns">
+          <div class="column-flex-3">
+            <img
+                height="500"
+                src="./figures/model-empirical.svg"
+                alt="Illustration des modèles empiriques par
+                la liaison directe des métriques à l'évaluation de la maintenabilité
+                via une modèle opaque d'apprentissage automatique.">
+          </div>
+          <div class="column-flex-2">
+            <ul>
+              <li class="fragment">La maintenabilité n'est plus modélisé ;</li>
+              <li class="fragment">Elle est apprise, puis prédite ;</li>
+              <li class="fragment">Il nous faut donc plein de <b>DATA</b> !</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2>Un exemple de modèle empirique <span class="fragment">?</span></h2>
+        <div class="columns">
+          <div class="column-flex-1">
+            <figure class="fragment">
+              <img
+                  height="300"
+                  src="./figures/qrcode-software-maintainability-dataset.png"
+                  alt="">
+              <figcaption>A Software Maintainability Dataset<br />
+                (<span class="author">Schnappinger</span> 2020)</figcaption>
+            </figure>
+          </div>
+          <div class="column-flex-1">
+              <figure class="fragment">
+                <img
+                    height="300"
+                    src="./figures/qrcode-maintainability-dataset-analysis.png"
+                    alt="">
+                <figcaption>Maintainability Dataset Analysis<br />
+                  (<span class="author">Bertrand</span> 2023)</figcaption>
+              </figure>
+          </div>
+        </div>
+      </section>
+    </section>
+    <section id="recherche" data-name="Recherche">
+      <section>
+        <h2>L'état de la recherche sur la maintenabilité</h2>
+        <ul>
+          <li class="fragment">Beaucoup <b>BEAUCOUP</b> d'apprentissage automatique ;</li>
+          <li class="fragment">Création de jeux de données fiables par évaluation experte :
+            <ul>
+              <li>« A software maintainability dataset » (<span class="author">Schnappinger</span> 2020)</li>
+              <li>« An empirical validation of cognitive complexity […] » (<span class="author">Barón</span> 2020)</li>
+            </ul>
+          </li>
+          <li class="fragment">Pas assez de travail sur les métriques statiques de code.</li>
+        </ul>
+      </section>
+      <section id="graphes-de-code">
+        <h2 style="margin: 20px auto 0 auto">Génération de graphes de code opérationnels</h2>
+        <div class="columns">
+          <div class="column-flex-1">
+            <p>Génération du graphe de code d'un programme :</p>
+            <pre>
+              <code class="language-java" data-trim data-line-numbers="2-8">
+                for (int i = 0; i < desc.size(); i++)
+                {
+                  JSONObject transaction = new JSONObject();
+                  transaction.put("date", dates.get(i));
+                  transaction.put("label", desc.get(i));
+                  transaction.put("amount", amounts.get(i));
+                  this.json.put(transaction);
+                }
+              </code>
+            </pre>
+            <p class="caption author">Bertrand et al. (2022)</p>
+          </div>
+          <div class="column-flex-2">
+            <div class="r-stack">
+              <img class="fragment current-visible" height=670 style="margin: 0 auto"
+                   src="./figures/javanalyser-transformation-ast-1.svg"/>
+              <img class="fragment current-visible" height=670 style="margin: 0 auto"
+                   src="./figures/javanalyser-transformation-ast-2.svg"/>
+              <img class="fragment current-visible" height=670 style="margin: 0 auto"
+                   src="./figures/javanalyser-transformation-ast-3.svg"/>
+              <img class="fragment current-visible" height=670 style="margin: 0 auto"
+                   src="./figures/javanalyser-transformation-graph-with-references.svg"/>
+              <img class="fragment current-visible" height=670 style="margin: 0 auto"
+                   src="./figures/javanalyser-transformation-graph.svg"/>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="métriques-généralisées">
+        <h2>Métriques sur le graphe de code</h2>
+        <div class="columns">
+          <div class="column-flex-3 fragment">
+            <img
+                height="500"
+                src="./figures/graph-types.png">
+            <p class="caption">Types de graphes</p>
+          </div>
+          <div class="column-flex-2">
+            <ul>
+              <li class="fragment">Identifier la structure du graphe de code ;</li>
+              <li class="fragment">Exploiter la théorie des graphes pour proposer de nouvelles métriques.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+      <section id="javanalyser">
+        <h2>Javanalyser</h2>
+        <div class="columns">
+          <div class="column-flex-1">
+            <img height="500" src="./figures/javanalyser-aoi-extract.svg">
+            <p class="caption">Arbre des paquets et des types de <em>Art of Illusion</em></p>
+          </div>
+          <div class="column-flex-1">
+            <ul>
+              <li>Libre et publié sous license MIT sur le Gitlab de Onepoint ;</li>
+              <li>Performant : 100000 lignes de code traitées en 5 minutes.</li>
+            </ul>
+            <figure class="fragment">
+              <img
+                  height="300"
+                  src="./figures/qrcode-javanalyser.png"
+                  alt="">
+              <figcaption><b>Javanalyser</b><br />
+                (<span class="author">Bertrand</span> 2022)</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+    </section>
+    </section>
+    <section id="merci" data-state="hide-menubar hide-menu">
+      <h2>Merci</h2>
+      <img
+          src="./figures/qrcode-openfeedback.svg"
+          alt="">
+      <p><b>Sébastien Bertrand</b></p>
+      <img class="logo" src="./figures/logo-onepoint.png" alt="Onepoint">
+      <img class="logo" height="60px" src="./figures/logo-breizhcamp.png" alt="BreizhCamp">
+    </section>
+  </div>
+</div>
+
+
+<script src="beyond.js/dist/reveal.js"></script>
+<script src="beyond.js/plugin/notes/notes.js"></script>
+<script src="beyond.js/plugin/highlight/highlight.js"></script>
+<script src="beyond.js/plugin/math/math.js"></script>
+<script src="beyond.js/plugin/simplemenu/simplemenu.js"></script>
+<script src="beyond.js/plugin/search/search.js"></script>
+<script>
+  // More info about initialization & config:
+  // - https://revealjs.com/initialization/
+  // - https://revealjs.com/config/
+  Reveal.initialize({
+    width: 1200,
+    height: 700,
+    hash: true,
+    totalTime: 3300,
+    controlsTutorial: false,
+    slideNumber: "c/t",
+    // Learn about plugins: https://revealjs.com/plugins/
+    plugins: [RevealHighlight, RevealNotes, RevealMath.KaTeX, Simplemenu, RevealSearch],
+  });
+</script>
+
+</body>
+</html>
